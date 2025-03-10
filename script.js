@@ -31,6 +31,9 @@ function generateQRCode(referrerId) {
         correctLevel : QRCode.CorrectLevel.H
     });
 
+    const canvas = qrCodeDiv.querySelector('canvas');
+    qrCodeDiv.appendChild(canvas);
+
     // Add padding, text, and logo (implementation needed)
     addPaddingTextLogo();
 
