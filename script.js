@@ -1,6 +1,7 @@
 const qrForm = document.getElementById('qrForm');
 const qrCodeDiv = document.getElementById('qrCode');
 const downloadBtn = document.getElementById('downloadBtn');
+const openBtn = document.getElementById('openBtn');
 
 qrForm.addEventListener('submit', function(e) {
     e.preventDefault();
@@ -22,6 +23,7 @@ qrForm.addEventListener('submit', function(e) {
 function generateQRCode(referrerId) {
     qrCodeDiv.innerHTML = ""; // Clear previous QR code
 
+    // Create QR code
     const qrcode = new QRCode(qrCodeDiv, {
         text: referrerId,
         width: 1600,
@@ -31,75 +33,177 @@ function generateQRCode(referrerId) {
         correctLevel : QRCode.CorrectLevel.H
     });
 
-    const canvas = qrCodeDiv.querySelector('canvas');
-    qrCodeDiv.appendChild(canvas);
+    // Store the referrer ID for download filename
+    qrCodeDiv.dataset.referrerId = referrerId;
 
-    // Add padding, text, and logo (implementation needed)
-    addPaddingTextLogo();
-
-    downloadBtn.style.display = "block";
-    downloadBtn.addEventListener('click', downloadQRCode);
+    // Wait a bit for the QR code to render completely
+    setTimeout(() => {
+        // Get the QR code image and canvas
+        const qrImg = qrCodeDiv.querySelector('img');
+        const qrCanvas = qrCodeDiv.querySelector('canvas');
+        
+        if (qrCanvas) {
+            // Create a new canvas for our final QR code with logo
+            createQRWithLogo(qrCanvas);
+        } else {
+            console.error('QR code canvas not found');
+        }
+    }, 200);
 }
 
-function addPaddingTextLogo() {
-    const canvas = qrCodeDiv.querySelector('canvas');
+// New function to create QR code with logo
+function createQRWithLogo(qrCanvas) {
+    // Create a new canvas
+    const canvas = document.createElement('canvas');
+    const size = qrCanvas.width; // Use the original QR code size
+    canvas.width = size;
+    canvas.height = size;
     const ctx = canvas.getContext('2d');
-    const width = canvas.width;
-    const height = canvas.height;
-
+    
+    // Fill with white background
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, size, size);
+    
     // Calculate padding
-    const padding = width * 0.05;
-    const bottomPadding = height * 0.1;
-
-    // Save the current drawing state
-    ctx.save();
-
-    // Clear the entire canvas
-    ctx.clearRect(0, 0, width, height);
-
-    // Redraw the QR code with padding
-    const qrCodeSize = width - 2 * padding;
-    ctx.drawImage(canvas, padding, padding, qrCodeSize, qrCodeSize);
-
-    // Add "Road to Türkiye" text
-    ctx.font = `bold ${bottomPadding / 2}px Arial`; // Adjust font size as needed
-    ctx.fillStyle = "#000";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(
-        "Road to Türkiye",
-        width / 2,
-        height - bottomPadding / 2
-    );
-
-    // Load and add the corporate logo
-    const logo = new Image();
-    logo.src = "logo.png"; // Assuming logo.png is in the same directory
-    logo.onload = function() {
-        const logoSize = qrCodeSize / 3; // Adjust logo size as needed
-        const logoX = width / 2 - logoSize / 2;
-        const logoY = height / 2 - logoSize / 2;
-        ctx.drawImage(logo, logoX, logoY, logoSize, logoSize);
-
-        // Restore the drawing state
-        ctx.restore();
-
-        // Convert canvas to image and update qrCodeDiv
-        const qrCodeImg = document.createElement('img');
-        qrCodeImg.src = canvas.toDataURL("image/png");
+    const padding = Math.floor(size * 0.05);
+    const bottomTextArea = Math.floor(size * 0.10);
+    
+    // Draw the QR code (slightly smaller to accommodate padding)
+    const qrSize = size - (padding * 2);
+    ctx.drawImage(qrCanvas, padding, padding, qrSize, qrSize - bottomTextArea);
+    
+    // Use the preloaded logo image from HTML
+    const logoImg = document.getElementById('logoImage');
+    
+    // Function to finalize the QR code with or without logo
+    function finalizeQRCode(withLogo) {
+        if (withLogo && logoImg && logoImg.complete) {
+            // Calculate logo size - 20% of QR code
+            const logoSize = Math.floor(qrSize * 0.2);
+            
+            // Calculate position to center the logo exactly in the middle of the QR code area
+            const logoX = padding + Math.floor((qrSize - logoSize) / 2);
+            const logoY = padding + Math.floor((qrSize - bottomTextArea - logoSize) / 2);
+            
+            // Draw white square behind logo
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(logoX - 5, logoY - 5, logoSize + 10, logoSize + 10);
+            
+            // Draw the logo
+            ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+            console.log('Logo added at position:', logoX, logoY, 'with size', logoSize);
+        }
+        
+        // Add text at the bottom
+        ctx.font = `italic ${Math.floor(bottomTextArea * 0.4)}px 'Dancing Script'`;
+        ctx.fillStyle = '#1a1a1a';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(
+            'Your journey to Türkiye',
+            size / 2,
+            size - (bottomTextArea / 2)
+        );
+        
+        // Convert to image and replace the QR code
+        const finalImg = document.createElement('img');
+        finalImg.src = canvas.toDataURL('image/png', 1.0);
         qrCodeDiv.innerHTML = '';
-        qrCodeDiv.appendChild(qrCodeImg);
-    };
+        qrCodeDiv.appendChild(finalImg);
+        
+        // Make sure buttons are visible and have event listeners
+        downloadBtn.style.display = 'block';
+        openBtn.style.display = 'block';
+        
+        // Re-attach event listeners to ensure they work
+        downloadBtn.addEventListener('click', downloadQRCode);
+        openBtn.addEventListener('click', openInNewWindow);
+        
+        console.log('QR code finalized', withLogo ? 'with logo' : 'without logo');
+    }
+    
+    // Try to use the logo if it's loaded
+    if (logoImg && logoImg.complete && logoImg.naturalWidth > 0) {
+        console.log('Logo is already loaded, using it directly');
+        finalizeQRCode(true);
+    } else if (logoImg) {
+        console.log('Waiting for logo to load...');
+        // Wait for the logo to load
+        logoImg.onload = function() {
+            console.log('Logo loaded successfully');
+            finalizeQRCode(true);
+        };
+        
+        logoImg.onerror = function() {
+            console.error('Failed to load logo image');
+            finalizeQRCode(false);
+        };
+        
+        // Set a timeout in case the logo takes too long to load
+        setTimeout(function() {
+            if (!logoImg.complete || logoImg.naturalWidth === 0) {
+                console.warn('Logo loading timeout');
+                finalizeQRCode(false);
+            }
+        }, 1000);
+    } else {
+        console.error('Logo element not found');
+        finalizeQRCode(false);
+    }
+}
+
+function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+    let rot = Math.PI / 2 * 3;
+    let x = cx;
+    let y = cy;
+    const step = Math.PI / spikes;
+
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - outerRadius);
+
+    for (let i = 0; i < spikes; i++) {
+        x = cx + Math.cos(rot) * outerRadius;
+        y = cy + Math.sin(rot) * outerRadius;
+        ctx.lineTo(x, y);
+        rot += step;
+
+        x = cx + Math.cos(rot) * innerRadius;
+        y = cy + Math.sin(rot) * innerRadius;
+        ctx.lineTo(x, y);
+        rot += step;
+    }
+
+    ctx.lineTo(cx, cy - outerRadius);
+    ctx.closePath();
+    ctx.fill();
 }
 
 function downloadQRCode() {
     const qrCodeImg = qrCodeDiv.querySelector('img');
     if (qrCodeImg) {
+        // Get the referrer ID either from the dataset or from the input field
+        const referrerId = qrCodeDiv.dataset.referrerId || document.getElementById('referrerId').value.replace(/\s+/g, '-');
+        const date = new Date().toISOString().split('T')[0];
+        const fileName = `${referrerId}-${date}.png`;
+        
         const link = document.createElement('a');
         link.href = qrCodeImg.src;
-        link.download = 'qrcode.png';
+        link.download = fileName;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
     }
 }
+
+function openInNewWindow() {
+    const qrCodeImg = qrCodeDiv.querySelector('img');
+    if (qrCodeImg) {
+        const newWindow = window.open('');
+        newWindow.document.write('<html><head><title>QR Code</title></head><body style="margin:0;display:flex;justify-content:center;align-items:center;background:#f5f5f5;"><img src="' + qrCodeImg.src + '" style="max-width:90vw;max-height:90vh;"></body></html>');
+    }
+}
+
+// Add event listeners
+downloadBtn.addEventListener('click', downloadQRCode);
+openBtn.addEventListener('click', openInNewWindow);

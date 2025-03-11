@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Code Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,7 +18,12 @@
             <button type="submit">Generate</button>
         </form>
         <div id="qrCode"></div>
-        <button id="downloadBtn" style="display:none;">Download QR Code</button>
+        <div class="button-group">
+            <button id="downloadBtn" style="display:none;">Download QR Code</button>
+            <button id="openBtn" style="display:none;">Open in new window</button>
+        </div>
+        <!-- Preload the logo image (hidden) -->
+        <img id="logoImage" src="a-logo.jpeg" style="display:none;" alt="Logo" crossorigin="anonymous" onload="console.log('Logo loaded successfully')" onerror="console.error('Logo failed to load')" />
     </div>
     <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
     <script src="script.js"></script>
