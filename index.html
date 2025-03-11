@@ -10,6 +10,7 @@
 <body>
     <div class="container">
         <h1>QR Code Generator</h1>
+        <span class="byline">by <a href="https://serhandemirel.com" target="_blank" rel="noopener noreferrer">Serhan Demirel</a></span>
         <form id="qrForm">
             <div class="form-group full-width">
                 <label for="referrerId">Referrer ID: <span class="required">*</span></label>
@@ -42,7 +43,7 @@
         <!-- Preload the logo image (hidden) -->
         <img id="logoImage" src="a-logo.jpeg" style="display:none;" alt="Logo" crossorigin="anonymous" onload="console.log('Logo loaded successfully')" onerror="console.error('Logo failed to load')" />
     </div>
-    <div class="byline">by <a href="https://serhandemirel.com" target="_blank" rel="noopener noreferrer">Serhan Demirel</a></div>
+
     <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
     <script src="script.js"></script>
 </body>

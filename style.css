@@ -207,19 +207,20 @@ button:active {
 .byline {
     font-family: 'Poppins', sans-serif;
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.3);
-    text-align: center;
-    margin-top: 30px;
+    color: rgba(0, 0, 0, 0.4);
+    display: block;
+    margin-top: -20px;
+    margin-bottom: 25px;
 }
 
 .byline a {
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba(0, 0, 0, 0.4);
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
 .byline a:hover {
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(227, 10, 23, 0.6);
 }
 
 #qrCode img {
