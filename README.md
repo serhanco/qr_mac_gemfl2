@@ -61,6 +61,7 @@ To run this project locally:
 
 ## Credits
 
+- **Developer**: [Serhan Demirel](https://serhandemirel.com)
 - QR Code generation: [QRCode.js](https://github.com/davidshimjs/qrcodejs)
 - Fonts: Google Fonts (Playfair Display, Poppins, Dancing Script)
 - Logo: Medical Travel Türkiye
