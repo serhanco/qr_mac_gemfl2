@@ -11,19 +11,34 @@
     <div class="container">
         <h1>QR Code Generator</h1>
         <form id="qrForm">
-            <div class="form-group">
+            <div class="form-group full-width">
                 <label for="referrerId">Referrer ID:</label>
                 <input type="text" id="referrerId" name="referrerId" placeholder="Enter referrer ID">
             </div>
-            <div class="form-group">
-                <label for="darkColor">QR Code Color:</label>
-                <input type="color" id="darkColor" name="darkColor" value="#000000">
+            
+            <div class="form-row">
+                <div class="form-group half-width">
+                    <label for="qrWidth">Width:</label>
+                    <input type="number" id="qrWidth" name="qrWidth" value="1600" min="500" max="3000" step="100">
+                </div>
+                <div class="form-group half-width">
+                    <label for="qrHeight">Height:</label>
+                    <input type="number" id="qrHeight" name="qrHeight" value="1600" min="500" max="3000" step="100">
+                </div>
             </div>
-            <div class="form-group">
-                <label for="frameColor">Frame Color:</label>
-                <input type="color" id="frameColor" name="frameColor" value="#1a1a1a">
+            
+            <div class="form-row">
+                <div class="form-group half-width">
+                    <label for="darkColor">QR Code Color:</label>
+                    <input type="color" id="darkColor" name="darkColor" value="#000000">
+                </div>
+                <div class="form-group half-width">
+                    <label for="frameColor">Frame Color:</label>
+                    <input type="color" id="frameColor" name="frameColor" value="#1a1a1a">
+                </div>
             </div>
-            <button type="submit">Generate</button>
+            
+            <button type="submit" class="generate-btn">Generate QR Code</button>
         </form>
         <div id="qrCode"></div>
         <div class="button-group">

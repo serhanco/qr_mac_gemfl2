@@ -8,6 +8,8 @@ qrForm.addEventListener('submit', function(e) {
     const referrerId = document.getElementById('referrerId').value;
     const darkColor = document.getElementById('darkColor').value;
     const frameColor = document.getElementById('frameColor').value;
+    const qrWidth = parseInt(document.getElementById('qrWidth').value) || 1600;
+    const qrHeight = parseInt(document.getElementById('qrHeight').value) || 1600;
 
     // Validate referrerId (alphanumeric, change spaces to dash)
     const isValid = /^[a-zA-Z0-9\s]*$/.test(referrerId);
@@ -21,21 +23,25 @@ qrForm.addEventListener('submit', function(e) {
     // Format the full URL for the QR code
     const qrCodeText = "https://medicaltravel.ch/contact/?referrerId=" + validatedReferrerId;
 
-    // Generate QR code with selected colors
-    generateQRCode(qrCodeText, darkColor, frameColor);
+    // Generate QR code with selected colors and dimensions
+    generateQRCode(qrCodeText, darkColor, frameColor, qrWidth, qrHeight);
 });
 
-function generateQRCode(qrText, darkColor, frameColor) {
+function generateQRCode(qrText, darkColor, frameColor, width, height) {
     qrCodeDiv.innerHTML = ""; // Clear previous QR code
 
     // Extract referrerId from the URL for the filename
     const referrerId = qrText.split('referrerId=')[1];
 
+    // Use default values if not provided
+    const qrWidth = width || 1600;
+    const qrHeight = height || 1600;
+
     // Create QR code
     const qrcode = new QRCode(qrCodeDiv, {
         text: qrText,
-        width: 1600,
-        height: 1600,
+        width: qrWidth,
+        height: qrHeight,
         colorDark : darkColor || "#000000",
         colorLight : "#ffffff",
         correctLevel : QRCode.CorrectLevel.H
@@ -45,6 +51,8 @@ function generateQRCode(qrText, darkColor, frameColor) {
     qrCodeDiv.dataset.referrerId = referrerId;
     qrCodeDiv.dataset.darkColor = darkColor;
     qrCodeDiv.dataset.frameColor = frameColor;
+    qrCodeDiv.dataset.width = qrWidth;
+    qrCodeDiv.dataset.height = qrHeight;
 
     // Wait a bit for the QR code to render completely
     setTimeout(() => {
@@ -112,7 +120,9 @@ function createQRWithLogo(qrCanvas) {
             console.log('Logo added at position:', logoX, logoY, 'with size', logoSize);
         }
         
-        // Add text at the bottom
+        // Add text at the bottom - properly centered in the bottom padding area
+        const bottomTextY = size - (bottomTextArea / 2);
+        
         ctx.font = `italic ${Math.floor(bottomTextArea * 0.4)}px 'Dancing Script'`;
         ctx.fillStyle = '#1a1a1a';
         ctx.textAlign = 'center';
@@ -120,8 +130,16 @@ function createQRWithLogo(qrCanvas) {
         ctx.fillText(
             'Your journey to Türkiye',
             size / 2,
-            size - (bottomTextArea / 2)
+            bottomTextY
         );
+        
+        // Draw a subtle line above the text for better separation
+        ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(padding, size - bottomTextArea);
+        ctx.lineTo(size - padding, size - bottomTextArea);
+        ctx.stroke();
         
         // Convert to image and replace the QR code
         const finalImg = document.createElement('img');
