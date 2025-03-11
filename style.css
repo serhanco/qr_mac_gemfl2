@@ -30,6 +30,7 @@ h1 {
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 100%;
 }
 
 label {
@@ -46,6 +47,17 @@ input[type="text"] {
     font-size: 16px;
     transition: all 0.3s ease;
     background: rgba(255, 255, 255, 0.9);
+}
+
+input[type="color"] {
+    width: 60px;
+    height: 40px;
+    border: 2px solid #e30a17;
+    border-radius: 8px;
+    background: none;
+    cursor: pointer;
+    padding: 2px;
+    margin-top: 5px;
 }
 
 input[type="text"]:focus {

@@ -6,6 +6,8 @@ const openBtn = document.getElementById('openBtn');
 qrForm.addEventListener('submit', function(e) {
     e.preventDefault();
     const referrerId = document.getElementById('referrerId').value;
+    const darkColor = document.getElementById('darkColor').value;
+    const frameColor = document.getElementById('frameColor').value;
 
     // Validate referrerId (alphanumeric, change spaces to dash)
     const isValid = /^[a-zA-Z0-9\s]*$/.test(referrerId);
@@ -15,26 +17,34 @@ qrForm.addEventListener('submit', function(e) {
     }
 
     const validatedReferrerId = referrerId.replace(/\s+/g, '-');
+    
+    // Format the full URL for the QR code
+    const qrCodeText = "https://medicaltravel.ch/contact/?referrerId=" + validatedReferrerId;
 
-    // Generate QR code
-    generateQRCode(validatedReferrerId);
+    // Generate QR code with selected colors
+    generateQRCode(qrCodeText, darkColor, frameColor);
 });
 
-function generateQRCode(referrerId) {
+function generateQRCode(qrText, darkColor, frameColor) {
     qrCodeDiv.innerHTML = ""; // Clear previous QR code
+
+    // Extract referrerId from the URL for the filename
+    const referrerId = qrText.split('referrerId=')[1];
 
     // Create QR code
     const qrcode = new QRCode(qrCodeDiv, {
-        text: referrerId,
+        text: qrText,
         width: 1600,
         height: 1600,
-        colorDark : "#000000",
+        colorDark : darkColor || "#000000",
         colorLight : "#ffffff",
         correctLevel : QRCode.CorrectLevel.H
     });
 
-    // Store the referrer ID for download filename
+    // Store the referrer ID and colors for later use
     qrCodeDiv.dataset.referrerId = referrerId;
+    qrCodeDiv.dataset.darkColor = darkColor;
+    qrCodeDiv.dataset.frameColor = frameColor;
 
     // Wait a bit for the QR code to render completely
     setTimeout(() => {
@@ -77,6 +87,14 @@ function createQRWithLogo(qrCanvas) {
     
     // Function to finalize the QR code with or without logo
     function finalizeQRCode(withLogo) {
+        // Get the frame color from the dataset
+        const frameColor = qrCodeDiv.dataset.frameColor || '#1a1a1a';
+        
+        // Draw a colored frame around the QR code
+        ctx.strokeStyle = frameColor;
+        ctx.lineWidth = Math.floor(size * 0.02); // 2% of size for frame thickness
+        ctx.strokeRect(padding/2, padding/2, size - padding, size - padding);
+        
         if (withLogo && logoImg && logoImg.complete) {
             // Calculate logo size - 20% of QR code
             const logoSize = Math.floor(qrSize * 0.2);
@@ -182,10 +200,10 @@ function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
 function downloadQRCode() {
     const qrCodeImg = qrCodeDiv.querySelector('img');
     if (qrCodeImg) {
-        // Get the referrer ID either from the dataset or from the input field
+        // Get the referrer ID from the dataset or from the input field
         const referrerId = qrCodeDiv.dataset.referrerId || document.getElementById('referrerId').value.replace(/\s+/g, '-');
         const date = new Date().toISOString().split('T')[0];
-        const fileName = `${referrerId}-${date}.png`;
+        const fileName = `medicaltravel-${referrerId}-${date}.png`;
         
         const link = document.createElement('a');
         link.href = qrCodeImg.src;
